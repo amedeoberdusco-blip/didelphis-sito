@@ -20,4 +20,4 @@ Per usare un dominio vostro (es. `www.didelphis.it`) inseriscilo in **Settings ‚
 - Testo della privacy policy (farlo verificare)
 
 ## Modulo di contatto
-GitHub Pages non esegue codice lato server: il modulo apre il programma di posta del visitatore con un messaggio gi√† compilato verso amministrazione@didelphis.it.
+Il modulo invia le richieste tramite Formspree (endpoint https://formspree.io/f/mkjjlrje), che le inoltra a amministrazione@didelphis.it. Le richieste sono visibili anche nella dashboard di Formspree.
