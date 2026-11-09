@@ -5,6 +5,7 @@ Sito statico (HTML + CSS, nessuna dipendenza) pronto per GitHub Pages.
 ## File
 - `index.html` – home page
 - `privacy.html` – informativa privacy (da completare)
+- `cookie.html` – cookie policy (da far verificare)
 - `assets/logo-didelphis.png` – logo
 
 ## Pubblicazione su GitHub Pages
@@ -20,4 +21,4 @@ Per usare un dominio vostro (es. `www.didelphis.it`) inseriscilo in **Settings �
 - Testo della privacy policy (farlo verificare)
 
 ## Modulo di contatto
-Il modulo invia le richieste tramite Formspree (endpoint https://formspree.io/f/mkjjlrje), che le inoltra a amministrazione@didelphis.it. Le richieste sono visibili anche nella dashboard di Formspree.
+Il modulo invia le richieste direttamente a Formspree (endpoint https://formspree.io/f/mkjjlrje), con verifica Google reCAPTCHA sulla pagina di Formspree; le richieste vengono inoltrate a amministrazione@didelphis.it. Il CAPTCHA va lasciato attivo nelle impostazioni del form su Formspree. Le richieste sono visibili anche nella dashboard di Formspree.

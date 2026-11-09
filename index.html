@@ -282,6 +282,10 @@ form.cf{flex:1 1 460px;min-width:0;display:grid;grid-template-columns:repeat(aut
 .consent input{width:20px;height:20px;margin:0;flex:0 0 20px;accent-color:var(--navy)}
 .status{font-size:15px;font-weight:700;color:var(--ok)}
 
+.cookie{position:fixed;z-index:50;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:720px;margin:0 auto;background:var(--white);border:1px solid var(--line);border-radius:24px;box-shadow:0 12px 40px rgba(20,33,61,.18);padding:18px 20px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+.cookie[hidden]{display:none}
+.cookie p{flex:1 1 360px;margin:0;font-size:14px;color:var(--muted)}
+.cookie strong{color:var(--ink);font-size:15px}
 footer{padding-bottom:env(safe-area-inset-bottom,0px)}
 footer .wrap{padding-block:36px 48px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;font-size:14px;color:var(--muted)}
 footer .wrap>div{display:flex;flex-direction:column;gap:6px}
@@ -622,7 +626,6 @@ footer a{color:var(--muted)}
 </div>
 <form class="cf" id="modulo-contatti" action="https://formspree.io/f/mkjjlrje" method="POST">
 <input type="hidden" name="_subject" id="f-subject" value="Richiesta dal sito Didelphis">
-<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="display:none">
 <label class="f">Nome e cognome<input type="text" name="nome" required autocomplete="name"></label>
 <label class="f">Azienda<input type="text" name="azienda" autocomplete="organization"></label>
 <label class="f">Email<input type="email" name="email" required autocomplete="email"></label>
@@ -639,7 +642,7 @@ footer a{color:var(--muted)}
 <label class="consent full"><input type="checkbox" name="privacy" required><span>Ho letto l’<a href="privacy.html">informativa privacy</a> e acconsento al trattamento dei dati per essere ricontattato.</span></label>
 <div class="full actions" style="align-items:center">
 <button type="submit" class="btn">Invia la richiesta</button>
-<p id="esito" class="status" role="status" aria-live="polite" hidden></p>
+<p class="hint" style="flex:1 1 260px;margin:0">Dopo l’invio passerai per un attimo da una pagina di verifica “Non sono un robot” di Formspree (Google reCAPTCHA), poi potrai tornare al sito.</p>
 </div>
 </form>
 </div>
@@ -655,9 +658,14 @@ footer a{color:var(--muted)}
 <span>Progettazione di progetti informatici e soluzioni web · Torino</span>
 <span>PEC: <a href="mailto:didelphis@pec.it">didelphis@pec.it</a></span>
 </div>
-<nav aria-label="Link legali"><a href="privacy.html">Privacy policy</a><a href="#top">Torna su ↑</a></nav>
+<nav aria-label="Link legali"><a href="privacy.html">Privacy policy</a><a href="cookie.html">Cookie policy</a><a href="#top">Torna su ↑</a></nav>
 </div>
 </footer>
+
+<div id="cookie-banner" class="cookie" role="region" aria-label="Informativa cookie" hidden>
+<p><strong>Cookie</strong><br>Questo sito non usa cookie di profilazione né di statistica. Utilizza solo servizi tecnici necessari al funzionamento. Quando invii il modulo di contatto, la verifica antispam Google reCAPTCHA sulla pagina di Formspree può usare cookie tecnici. <a href="cookie.html">Cookie policy</a> · <a href="privacy.html">Privacy</a></p>
+<button type="button" class="btn small navy" id="cookie-ok">Ho capito</button>
+</div>
 
 <script>
 (function () {
@@ -904,30 +912,27 @@ footer a{color:var(--muted)}
   $('#oc-reset').addEventListener('click', renderOc);
 
 
-  /* modulo contatti -> Formspree */
-  var form = $('#modulo-contatti'), esito = $('#esito');
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var btn = form.querySelector('button[type=submit]');
+  /* modulo contatti -> Formspree (invio diretto con reCAPTCHA) */
+  var form = $('#modulo-contatti');
+  form.addEventListener('submit', function () {
     $('#f-subject').value = 'Richiesta dal sito – ' + form.interesse.value;
-    btn.disabled = true; btn.textContent = 'Invio in corso…';
-    esito.hidden = true;
-    fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' } })
-      .then(function (r) {
-        if (!r.ok) throw new Error('invio non riuscito');
-        form.reset();
-        esito.style.color = 'var(--ok)';
-        esito.textContent = 'Grazie! Abbiamo ricevuto la tua richiesta e ti ricontatteremo a breve.';
-        esito.hidden = false;
-        btn.textContent = 'Richiesta inviata';
-        setTimeout(function () { btn.disabled = false; btn.textContent = 'Invia la richiesta'; }, 4000);
-      })
-      .catch(function () {
-        esito.style.color = '#B42318';
-        esito.innerHTML = 'Non è stato possibile inviare il messaggio. Riprova tra poco oppure scrivici a <a href="mailto:amministrazione@didelphis.it">amministrazione@didelphis.it</a>.';
-        esito.hidden = false;
-        btn.disabled = false; btn.textContent = 'Invia la richiesta';
-      });
+    var btn = form.querySelector('button[type=submit]');
+    btn.textContent = 'Invio in corso…';
+    setTimeout(function () { btn.disabled = true; }, 0);
+  });
+  window.addEventListener('pageshow', function () {
+    var btn = form.querySelector('button[type=submit]');
+    btn.disabled = false; btn.textContent = 'Invia la richiesta';
+  });
+
+  /* banner cookie */
+  var banner = $('#cookie-banner'), KEY = 'didelphis-cookie-ok';
+  var seen = false;
+  try { seen = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  if (!seen) banner.hidden = false;
+  $('#cookie-ok').addEventListener('click', function () {
+    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    banner.hidden = true;
   });
   renderOc();
 })();
